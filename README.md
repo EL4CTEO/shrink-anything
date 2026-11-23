@@ -18,6 +18,8 @@ Coding agents write code faster than anyone deletes it. Functions nothing calls,
 
 **shrink-anything** finds it, deletes it, and runs *your own tests* after every cut. What passes stays. What breaks is put back. One command, fully reversible.
 
+Every line it removes is a line your agent stops reading on the next task. The report counts that too: on the demo app, 46% fewer tokens to read.
+
 <p align="center"><img src="https://raw.githubusercontent.com/EL4CTEO/shrink-anything/main/docs/assets/demo.gif" alt="shrink-anything go -- npm test" width="820"></p>
 
 ## Install
