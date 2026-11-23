@@ -1,0 +1,58 @@
+{
+  "name": "@el4cteo/shrink-anything",
+  "version": "0.1.0",
+  "description": "Less code, same tests passing: delete the dead code, dead files and unused dependencies in any codebase, and keep each cut only if your own tests still pass.",
+  "keywords": [
+    "dead-code",
+    "unused-code",
+    "unused-dependencies",
+    "depcheck",
+    "tree-shaking",
+    "refactoring",
+    "cleanup",
+    "duplicates",
+    "python",
+    "typescript",
+    "javascript",
+    "rust",
+    "golang",
+    "java",
+    "csharp",
+    "php",
+    "ruby",
+    "lua",
+    "ai-agents",
+    "claude-code",
+    "mcp",
+    "codex",
+    "cli"
+  ],
+  "homepage": "https://github.com/EL4CTEO/shrink-anything#readme",
+  "bugs": "https://github.com/EL4CTEO/shrink-anything/issues",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/EL4CTEO/shrink-anything.git"
+  },
+  "license": "MIT",
+  "bin": {
+    "shrink-anything": "bin/shrink-anything.js"
+  },
+  "files": [
+    "bin",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "optionalDependencies": {
+    "@el4cteo/shrink-anything-win32-x64": "0.1.0",
+    "@el4cteo/shrink-anything-linux-x64": "0.1.0",
+    "@el4cteo/shrink-anything-linux-arm64": "0.1.0",
+    "@el4cteo/shrink-anything-darwin-arm64": "0.1.0",
+    "@el4cteo/shrink-anything-darwin-x64": "0.1.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

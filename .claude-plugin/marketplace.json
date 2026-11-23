@@ -1,0 +1,14 @@
+{
+  "name": "shrink-anything",
+  "owner": {
+    "name": "EL4CTEO"
+  },
+  "plugins": [
+    {
+      "name": "shrink-anything",
+      "source": "./",
+      "description": "Make a codebase smaller and prove with its own tests that nothing broke."
+    }
+  ],
+  "description": "shrink-anything: make a codebase smaller and prove with its own tests that nothing broke."
+}

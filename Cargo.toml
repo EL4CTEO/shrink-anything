@@ -1,0 +1,35 @@
+[package]
+name = "shrink-anything"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+description = "Delete the code, files and dependencies your app doesn't use, and prove with your own tests that nothing broke."
+license = "MIT"
+readme = "README.md"
+repository = "https://github.com/EL4CTEO/shrink-anything"
+keywords = ["dead-code", "dependencies", "refactoring", "ai-agents", "cli"]
+categories = ["command-line-utilities", "development-tools"]
+exclude = ["examples/*/.shrink", ".github", "docs/assets"]
+
+[[bin]]
+name = "shrink-anything"
+path = "src/main.rs"
+
+[dependencies]
+aho-corasick = "1.1.5"
+anyhow = "1.0.105"
+clap = { version = "4.6.9", features = ["derive"] }
+ignore = "0.4.35"
+rayon = "1.12.0"
+regex = "1.13.2"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = { version = "1.0.154", features = ["preserve_order"] }
+toml_edit = "0.25.20"
+
+[dev-dependencies]
+serde_json = "1.0.154"
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+strip = true

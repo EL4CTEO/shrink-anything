@@ -1,0 +1,78 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy, rustfmt
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.14"
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - uses: actions/setup-go@v7
+        with:
+          go-version: stable
+          cache: false
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets -- -D warnings
+      - run: cargo test
+      - run: node --test npm/shrink-anything/bin/shrink-anything.test.js
+      - run: cargo build --release
+      - name: end to end, Python
+        working-directory: examples/bloated-py
+        run: |
+          sa=../../target/release/shrink-anything
+          $sa go -- python -m unittest
+          python -m unittest
+          ! grep -q legacy_export shop/store.py
+          test ! -e shop/old_report.py
+          $sa undo --all
+          git diff --exit-code .
+      - name: end to end, TypeScript
+        working-directory: examples/bloated-ts
+        run: |
+          sa=../../target/release/shrink-anything
+          $sa go -- node --test
+          node --test
+          ! grep -q left-pad package.json
+          test ! -e src/legacy.ts
+          $sa undo --all
+          git diff --exit-code .
+      - name: end to end, Go
+        working-directory: examples/bloated-go
+        run: |
+          sa=../../target/release/shrink-anything
+          $sa go -- go test ./...
+          go vet ./...
+          ! grep -q legacyRow store.go
+          $sa undo --all
+          git diff --exit-code .
+      - name: end to end, build weight
+        working-directory: examples/heavy-web
+        run: |
+          sa=../../target/release/shrink-anything
+          $sa go --size dist -- "node build.mjs && node --test"
+          test ! -e img/team-2019.png
+          test -e img/hero.png
+          $sa weigh dist
+          $sa undo --all
+          git diff --exit-code .
+          test -e img/team-2019.png
