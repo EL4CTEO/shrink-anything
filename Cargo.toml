@@ -1,6 +1,6 @@
 [package]
 name = "shrink-anything"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 rust-version = "1.88"
 description = "Delete the code, files and dependencies your app doesn't use, and prove with your own tests that nothing broke."
@@ -22,6 +22,7 @@ clap = { version = "4.6.9", features = ["derive"] }
 ignore = "0.4.35"
 rayon = "1.12.0"
 regex = "1.13.2"
+regex-syntax = "0.8.12"
 serde = { version = "1.0.229", features = ["derive"] }
 serde_json = { version = "1.0.154", features = ["preserve_order"] }
 toml_edit = "0.25.20"

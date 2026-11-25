@@ -237,7 +237,7 @@ fn indent_span(code: &[&str], raw: &[&str], start: usize) -> Option<usize> {
 }
 
 fn starts_with_word(t: &str, word: &str) -> bool {
-    t.strip_prefix(word).is_some_and(|rest| !rest.starts_with(|c: char| c.is_alphanumeric() || c == '_'))
+    t.strip_prefix(word).is_some_and(|rest| !rest.starts_with(crate::lex::is_word))
 }
 
 fn end_span(code: &[&str], start: usize) -> Option<usize> {

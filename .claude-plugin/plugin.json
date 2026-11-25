@@ -1,6 +1,6 @@
 {
   "name": "shrink-anything",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Delete the dead code, dead files and unused dependencies in any codebase, and prove with its own tests that nothing broke.",
   "author": {
     "name": "EL4CTEO"

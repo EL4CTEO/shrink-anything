@@ -15,28 +15,35 @@ pub struct Lexed {
     pub path_parts: Vec<String>,
 }
 
-pub fn is_ident(b: u8) -> bool {
-    b.is_ascii_alphanumeric() || b == b'_'
+/// A character that can be part of a name: exactly what `\w` matches in the definition patterns,
+/// so a mention is split where a definition is. Names like résumé_title or dаta_format are whole.
+pub fn is_word(c: char) -> bool {
+    if c.is_ascii() { c.is_ascii_alphanumeric() || c == '_' } else { regex_syntax::is_word_character(c) }
+}
+
+/// A byte that can be part of a name, for scans that walk bytes. Any byte of a non-ASCII
+/// character counts: it may belong to a letter.
+fn is_ident(b: u8) -> bool {
+    b.is_ascii_alphanumeric() || b == b'_' || !b.is_ascii()
 }
 
 /// Calls f with every identifier in text.
 pub fn idents(text: &str, mut f: impl FnMut(&str)) {
-    let b = text.as_bytes();
-    let mut i = 0;
-    while i < b.len() {
-        if b[i].is_ascii_alphabetic() || b[i] == b'_' {
-            let start = i;
-            while i < b.len() && is_ident(b[i]) {
-                i += 1;
-            }
-            f(&text[start..i]);
-        } else if b[i].is_ascii_digit() {
-            // a number, with any letters glued to it
-            while i < b.len() && is_ident(b[i]) {
-                i += 1;
-            }
-        } else {
-            i += 1;
+    let mut chars = text.char_indices().peekable();
+    while let Some((start, first)) = chars.next() {
+        if !is_word(first) {
+            continue;
+        }
+        let mut end = start + first.len_utf8();
+        while let Some(&(i, c)) = chars.peek()
+            && is_word(c)
+        {
+            end = i + c.len_utf8();
+            chars.next();
+        }
+        // a number, with any letters glued to it, is not a name
+        if !first.is_ascii_digit() {
+            f(&text[start..end]);
         }
     }
 }
@@ -195,7 +202,7 @@ fn record(content: &str, prefixes: &mut Vec<String>, path_parts: &mut Vec<String
         return;
     }
     let head = content.split(['{', '$', '%', '#']).next().unwrap_or_default();
-    if head.len() >= 3 && head.ends_with('_') && head.bytes().all(is_ident) {
+    if head.chars().count() >= 3 && head.ends_with('_') && head.chars().all(is_word) {
         prefixes.push(head.to_string());
     }
     // A folder reached by path: every folder of a glob ("plugins/*.py"), or a path that ends at a
@@ -206,7 +213,7 @@ fn record(content: &str, prefixes: &mut Vec<String>, path_parts: &mut Vec<String
         for (i, part) in parts.iter().enumerate() {
             let folder = glob || (i + 1 == parts.len() && !part.contains('.'));
             let part = part.split('.').next().unwrap_or_default();
-            if folder && part.len() >= 3 && part.bytes().all(|c| is_ident(c) || c == b'-') {
+            if folder && part.chars().count() >= 3 && part.chars().all(|c| is_word(c) || c == '-') {
                 path_parts.push(part.to_string());
                 if glob {
                     // a pattern reads every file in the folder; a plain path may only copy it
@@ -379,5 +386,26 @@ mod tests {
     #[test]
     fn counts_whole_words() {
         assert_eq!(count_word("foo foo_bar afoo foo() 1foo", "foo"), 2);
+    }
+
+    #[test]
+    fn names_with_non_ascii_letters_are_one_word() {
+        // the second letter of dаta_format is Cyrillic
+        assert_eq!(count_word("return dаta_format(record)", "dаta_format"), 1);
+        assert_eq!(count_word("return résumé_title(name)", "résumé_title"), 1);
+        assert_eq!(count_word("résumé_title(x) d_résumé_title", "résumé_title"), 1);
+        // a combining accent is part of the name, as \w says
+        assert_eq!(count_word("cafe\u{301}() cafe", "cafe\u{301}"), 1);
+        assert_eq!(count_word("x = 1·2 + 3_ñ", "ñ"), 0);
+        let mut all = Vec::new();
+        idents("日本語 = größe — x", |t| all.push(t.to_string()));
+        assert_eq!(all, ["日本語", "größe", "x"]);
+    }
+
+    #[test]
+    fn records_non_ascii_prefixes_and_paths() {
+        let out = lex("getattr(self, 'gérer_' + k); glob('./règles/*.py')\n", for_path("a.py").unwrap().spec);
+        assert_eq!(out.prefixes, ["gérer_"]);
+        assert_eq!(out.path_parts, ["règles", "*règles"]);
     }
 }

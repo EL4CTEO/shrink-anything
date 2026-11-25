@@ -1,6 +1,6 @@
 {
   "name": "@el4cteo/shrink-anything",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Less code, same tests passing: delete the dead code, dead files and unused dependencies in any codebase, and keep each cut only if your own tests still pass.",
   "keywords": [
     "dead-code",
@@ -46,11 +46,11 @@
     "node": ">=18"
   },
   "optionalDependencies": {
-    "@el4cteo/shrink-anything-win32-x64": "0.1.0",
-    "@el4cteo/shrink-anything-linux-x64": "0.1.0",
-    "@el4cteo/shrink-anything-linux-arm64": "0.1.0",
-    "@el4cteo/shrink-anything-darwin-arm64": "0.1.0",
-    "@el4cteo/shrink-anything-darwin-x64": "0.1.0"
+    "@el4cteo/shrink-anything-win32-x64": "0.1.1",
+    "@el4cteo/shrink-anything-linux-x64": "0.1.1",
+    "@el4cteo/shrink-anything-linux-arm64": "0.1.1",
+    "@el4cteo/shrink-anything-darwin-arm64": "0.1.1",
+    "@el4cteo/shrink-anything-darwin-x64": "0.1.1"
   },
   "publishConfig": {
     "access": "public"

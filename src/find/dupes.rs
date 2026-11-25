@@ -52,7 +52,7 @@ fn normalize(text: &str, name: &str) -> String {
         }
     };
     for c in text.chars() {
-        if c.is_alphanumeric() || c == '_' {
+        if crate::lex::is_word(c) {
             word.push(c);
         } else {
             flush(&mut word, &mut out);

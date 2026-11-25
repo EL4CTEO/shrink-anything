@@ -119,6 +119,29 @@ fn verify_fails_when_tests_stop_running() {
     assert!(!ok && out.contains("1 tests, 2 before"), "{out}");
 }
 
+/// Issue 1: a called function whose name has a non-ASCII letter was reported dead and cut.
+#[test]
+fn names_with_non_ascii_letters_are_not_cut_while_called() {
+    let p = Project::new("unicode");
+    // the а in dаta_format is Cyrillic U+0430
+    fs::write(
+        p.0.join("app.py"),
+        "def dаta_format(record):\n    return {\"id\": record}\n\n\ndef build(record):\n    return dаta_format(record)\n\n\ndef ünused():\n    return 0\n",
+    )
+    .unwrap();
+    fs::write(
+        p.0.join("names.py"),
+        "def résumé_title(name):\n    return name.title()\n\n\ndef show(name):\n    return résumé_title(name)\n",
+    )
+    .unwrap();
+    let (ok, json) = p.run(&["scan", "--all", "--json"]);
+    assert!(ok, "{json}");
+    let scan: serde_json::Value = serde_json::from_str(&json).unwrap();
+    let names: Vec<&str> = scan["candidates"].as_array().unwrap().iter().map(|c| c["name"].as_str().unwrap()).collect();
+    assert!(!names.contains(&"dаta_format") && !names.contains(&"résumé_title"), "still called: {names:?}");
+    assert!(names.contains(&"build") && names.contains(&"show"), "nothing calls these: {names:?}");
+}
+
 fn mcp(dir: &Path, messages: &[serde_json::Value]) -> Vec<serde_json::Value> {
     let mut child =
         Command::new(BIN).arg("mcp").current_dir(dir).stdin(Stdio::piped()).stdout(Stdio::piped()).spawn().unwrap();
